@@ -24,4 +24,9 @@ public class Discipline
     /// Список учителей, которые ведут это занятие
     /// </summary>
     public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
+    
+    /// <summary>
+    /// Список занятий, которым принадлежит дисциплина
+    /// </summary>
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 }

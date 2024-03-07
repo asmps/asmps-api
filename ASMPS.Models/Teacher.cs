@@ -3,7 +3,7 @@
 /// <summary>
 /// Модель учителя
 /// </summary>
-public class Teacher : Person
+public class Teacher : User
 {
     /// <summary>
     /// Должность учителя
@@ -14,4 +14,9 @@ public class Teacher : Person
     /// Список дисциплин, которые ведет учитель
     /// </summary>
     public ICollection<Discipline> Disciplines { get; set; } = new List<Discipline>();
+    
+    /// <summary>
+    /// Список занятий, которые ввел учитель
+    /// </summary>
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 }

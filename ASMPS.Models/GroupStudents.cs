@@ -24,4 +24,14 @@ public class GroupStudents
     /// Список расписаний
     /// </summary>
     public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    
+    /// <summary>
+    /// Идентификатор деканата
+    /// </summary>
+    public Guid DeaneryId { get; set; }
+    
+    /// <summary>
+    /// Деканат
+    /// </summary>
+    public virtual Deanery Deanery { get; set; } = null!;
 }

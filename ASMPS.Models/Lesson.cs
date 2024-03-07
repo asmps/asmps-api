@@ -51,6 +51,16 @@ public class Lesson
     public virtual Schedule Schedule { get; set; } = null!;
     
     /// <summary>
+    /// Идентификатор аудитории
+    /// </summary>
+    public Guid AudienceId { get; set; }
+    
+    /// <summary>
+    /// Аудитория
+    /// </summary>
+    public virtual Audience Audience { get; set; } = null!;
+    
+    /// <summary>
     /// Тип занятия
     /// </summary>
     public LessonTypes Type { get; set; }

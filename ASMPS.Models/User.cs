@@ -8,8 +8,8 @@ public class User
     /// <summary>
     /// Идентификатор пользователя
     /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
-
+    public Guid Id { get; set; } 
+    
     /// <summary>
     /// Логин
     /// </summary>
@@ -19,6 +19,21 @@ public class User
     /// Пароль
     /// </summary>
     public string Password { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Имя
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Фамилия
+    /// </summary>
+    public string Surname { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Отчество
+    /// </summary>
+    public string? Patronymic { get; set; }
 
     /// <summary>
     /// Электронный адрес

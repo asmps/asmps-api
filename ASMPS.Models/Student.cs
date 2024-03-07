@@ -1,6 +1,6 @@
 ﻿namespace ASMPS.Models;
 
-public class Student : Person
+public class Student : User
 {
     /// <summary>
     /// Номер студенческого билета
