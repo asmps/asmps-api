@@ -7,4 +7,21 @@
   </PropertyGroup>
 
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASMPS.Models\ASMPS.Models.csproj" />
+  </ItemGroup>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </Project>

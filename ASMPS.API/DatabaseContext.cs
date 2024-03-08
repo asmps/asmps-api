@@ -11,6 +11,16 @@ public sealed class DatabaseContext : DbContext
     /// Таблица пользователей
     /// </summary>
     public DbSet<User> Users { get; set; } = null!;
+    
+    /// <summary>
+    /// Таблица студентов
+    /// </summary>
+    public DbSet<Student> Students { get; set; } = null!;
+    
+    /// <summary>
+    /// Таблица учителей
+    /// </summary>
+    public DbSet<Teacher> Teachers { get; set; } = null!;
 
     /// <summary>
     /// Таблица групп студентов
@@ -84,6 +94,21 @@ public sealed class DatabaseContext : DbContext
                 Surname = "Маркелов",
                 Email = "pmarkelo77@gmail.com"
             });
+        });
+        
+        modelBuilder.Entity<Student>(entity =>
+        {
+            entity.Property(e => e.StudentID).IsRequired();
+            
+            entity.HasOne(s => s.Group).WithMany(g => g.Students).HasForeignKey(s => s.GroupId);
+        });
+        
+        modelBuilder.Entity<Teacher>(entity =>
+        {
+            entity.Property(e => e.Position).IsRequired();
+            
+            entity.HasMany(t => t.Disciplines).WithMany(d => d.Teachers);
+            entity.HasMany(t => t.Lessons).WithOne(l => l.Teacher).HasForeignKey(l => l.TeacherId);
         });
 
         modelBuilder.Entity<GroupStudents>(entity =>

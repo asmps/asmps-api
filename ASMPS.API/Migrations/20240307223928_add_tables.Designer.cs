@@ -3,6 +3,7 @@ using System;
 using ASMPS.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASMPS.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240307223928_add_tables")]
+    partial class add_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,8 +226,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6892f0b8-ac1c-45c9-98e8-baca4718b3ba"),
-                            CreatedDate = new DateTime(2024, 3, 8, 13, 53, 20, 477, DateTimeKind.Utc).AddTicks(2719),
+                            Id = new Guid("b4993178-6c50-4921-bda0-ca5541f333ae"),
+                            CreatedDate = new DateTime(2024, 3, 7, 22, 39, 28, 25, DateTimeKind.Utc).AddTicks(3200),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",
