@@ -52,6 +52,20 @@ public sealed class DatabaseContext : DbContext
     /// </summary>
     public DbSet<Audience> Audiences { get; set; } = null!;
 
+    /// <summary>
+    /// Таблица посещений
+    /// </summary>
+    public DbSet<Attendance> Attendances { get; set; } = null!;
+
+    /// <summary>
+    /// Таблица сканеров
+    /// </summary>
+    public DbSet<ScannerOwnership> ScannerOwnerships { get; set; } = null!;
+
+    /// <summary>
+    /// Таблица кодов пройденых через сканер
+    /// </summary>
+    public DbSet<PassInfo> PassInfos { get; set; } = null!;
     #endregion
     
     /// <summary>
@@ -98,7 +112,7 @@ public sealed class DatabaseContext : DbContext
         
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.Property(e => e.StudentID).IsRequired();
+            entity.Property(e => e.StudentId).IsRequired();
             
             entity.HasOne(s => s.Group).WithMany(g => g.Students).HasForeignKey(s => s.GroupId);
         });
@@ -159,6 +173,7 @@ public sealed class DatabaseContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired();
             entity.Property(e => e.Note).IsRequired(false);
+            entity.Property(e => e.Number).IsRequired();
             
             entity.HasMany(c => c.Audiences).WithOne(a => a.Campus).HasForeignKey(a => a.CampusId);
         });
@@ -168,6 +183,7 @@ public sealed class DatabaseContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired();
             entity.Property(e => e.Note).IsRequired(false);
+            entity.Property(e => e.Number).IsRequired();
             
             entity.HasOne(a => a.Campus).WithMany(c => c.Audiences).HasForeignKey(a => a.CampusId);
         });
@@ -175,6 +191,30 @@ public sealed class DatabaseContext : DbContext
         modelBuilder.Entity<Deanery>(entity =>
         {
             entity.HasMany(d => d.GroupStudents).WithOne(g => g.Deanery).HasForeignKey(g => g.DeaneryId);
+        });
+
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.HasNoKey();
+            entity.Property(e => e.StudentId).IsRequired();
+            entity.Property(e => e.LessonId).IsRequired();
+            entity.Property(e => e.AttendanceDateTime).IsRequired();
+            entity.Property(e => e.IsAttendance).IsRequired();
+        });
+
+        modelBuilder.Entity<PassInfo>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.DateTime).IsRequired();
+            entity.Property(e => e.CampusId).IsRequired();
+            entity.Property(e => e.PassType).IsRequired();
+        });
+        
+        modelBuilder.Entity<ScannerOwnership>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CampusId).IsRequired();
         });
         
         base.OnModelCreating(modelBuilder);

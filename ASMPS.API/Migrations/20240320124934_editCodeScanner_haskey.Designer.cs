@@ -3,6 +3,7 @@ using System;
 using ASMPS.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASMPS.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240320124934_editCodeScanner_haskey")]
+    partial class editCodeScanner_haskey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,9 +54,6 @@ namespace ASMPS.API.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("text");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -74,9 +74,6 @@ namespace ASMPS.API.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("text");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -84,6 +81,26 @@ namespace ASMPS.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Campuses");
+                });
+
+            modelBuilder.Entity("ASMPS.Models.CodeScanner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CampusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CodeScanners");
                 });
 
             modelBuilder.Entity("ASMPS.Models.Discipline", b =>
@@ -172,30 +189,7 @@ namespace ASMPS.API.Migrations
                     b.ToTable("Lessons");
                 });
 
-            modelBuilder.Entity("ASMPS.Models.PassInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CampusId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PassType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PassInfos");
-                });
-
-            modelBuilder.Entity("ASMPS.Models.ScannerOwnership", b =>
+            modelBuilder.Entity("ASMPS.Models.Scanner", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -206,7 +200,7 @@ namespace ASMPS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ScannerOwnerships");
+                    b.ToTable("Scanners");
                 });
 
             modelBuilder.Entity("ASMPS.Models.Schedule", b =>
@@ -283,8 +277,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3940c95a-1ba3-45bb-bfd7-19e65c1ba4ba"),
-                            CreatedDate = new DateTime(2024, 3, 20, 20, 52, 52, 521, DateTimeKind.Utc).AddTicks(9960),
+                            Id = new Guid("220f601e-da3f-44cc-b682-8e2b18ffdbad"),
+                            CreatedDate = new DateTime(2024, 3, 20, 12, 49, 34, 545, DateTimeKind.Utc).AddTicks(8846),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",

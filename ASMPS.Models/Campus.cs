@@ -14,6 +14,11 @@ public class Campus
     /// Заголовок/название кампуса
     /// </summary>
     public string Title { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Номер корпуса
+    /// </summary>
+    public int Number { get; set; }
     
     /// <summary>
     /// Описание

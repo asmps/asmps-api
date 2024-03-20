@@ -16,6 +16,11 @@ public class Audience
     public string Title { get; set; } = string.Empty;
     
     /// <summary>
+    /// Номер аудитории
+    /// </summary>
+    public int Number { get; set; }
+    
+    /// <summary>
     /// Описание
     /// </summary>
     public string? Note { get; set; }
