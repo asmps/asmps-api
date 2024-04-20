@@ -88,8 +88,7 @@ public class StudentsController : Controller
         
         return Ok(schedule);
     }
-
-    // todo
+    
     [HttpPost("attendance")]
     public async Task<IActionResult> GetAttendance([FromBody] AttendanceAcceptDto attendanceAcceptDto)
     {
@@ -102,40 +101,64 @@ public class StudentsController : Controller
         var lesson = await _context.Lessons.FirstOrDefaultAsync(item => item.Id == attendanceAcceptDto.LessonId);
         if (lesson is null)
             return BadRequest();
-
-        // Проверка своевременного подтверждения присутствия на занятии
-        if (attendanceAcceptDto.AttendanceDateTime.TimeOfDay > lesson.EndLesson.ToTimeSpan() &&
-            attendanceAcceptDto.AttendanceDateTime.TimeOfDay < lesson.StartLesson.ToTimeSpan())
+        
+        var schedule = await _context.Schedules.FirstOrDefaultAsync(item => item.Date == DateOnly.FromDateTime(DateTime.UtcNow) && item.Lessons.Contains(lesson));
+        if (schedule is null)
             return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
-
-        var audience = await _context.Audiences.FirstOrDefaultAsync(item => item.Id == lesson.AudienceId);
-        if (audience is null)
-            return Conflict();
-
-        var passInfo = await _context.PassInfos
-            .GroupBy(item => item.UserId)
-            .Select(item => item
-                .OrderByDescending(c => c.DateTime)
-                .First())
-            .FirstOrDefaultAsync();
-        if (passInfo is null)
-            return NotFound();
-
-        if (passInfo.CampusId != audience.CampusId)
-            return Conflict("");
         
-        var attendance = new Attendance
+        var attendance = await _context.Attendances.FirstOrDefaultAsync(item =>
+            item.StudentId == studentInfo.GuidId && item.LessonId == lesson.Id);
+        if (attendance is not null && attendance.IsAttendance == true)
+            return Conflict("Статус посещения уже был подтвержден!");
+
+        DateTime lessonStart = DateTime.Today.Add(lesson.StartLesson.ToTimeSpan());
+        DateTime lessonEnd = DateTime.Today.Add(lesson.EndLesson.ToTimeSpan());
+        
+        // Проверка своевременного подтверждения присутствия на занятии
+        if (attendanceAcceptDto.AttendanceDateTime >= lessonStart && attendanceAcceptDto.AttendanceDateTime <= lessonEnd)
         {
-            LessonId = attendanceAcceptDto.LessonId,
-            StudentId = studentInfo.GuidId,
-            AttendanceDateTime = DateTime.UtcNow,
-            IsAttendance = true
-        };
+            var audience = await _context.Audiences.FirstOrDefaultAsync(item => item.Id == lesson.AudienceId);
+            if (audience is null)
+                return Conflict();
+
+            var passInfo = await _context.PassInfos
+                .GroupBy(item => item.UserId)
+                .Select(item => item
+                    .OrderByDescending(c => c.DateTime)
+                    .First())
+                .FirstOrDefaultAsync();
+            if (passInfo is null)
+                return NotFound();
+
+            if (passInfo.CampusId != audience.CampusId)
+                return Conflict("");
+
+            if (attendance != null)
+            {
+                attendance.IsAttendance = true;
+                attendance.AttendanceDateTime = DateTime.UtcNow;
+
+                _context.Attendances.Update(attendance);
+            }
+            else
+            {
+                attendance = new Attendance()
+                {
+                    Id = Guid.NewGuid(),
+                    IsAttendance = true,
+                    StudentId = studentInfo.GuidId,
+                    AttendanceDateTime = DateTime.UtcNow,
+                    LessonId = lesson.Id
+                };
+                
+                await _context.Attendances.AddAsync(attendance);
+            }
+
+            await _context.SaveChangesAsync();
         
-        await _context.Attendances.AddAsync(attendance);
-        await _context.SaveChangesAsync();
-        
-        return Ok();
+            return Ok();
+        }
+        return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
     }
     
     #region Claims

@@ -6,7 +6,7 @@
 public class PassInfo
 {
     /// <summary>
-    /// Идентификатор сканирования
+    /// Идентификатор пропуска  
     /// </summary>
     public Guid Id { get; set; }
     

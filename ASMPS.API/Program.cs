@@ -2,6 +2,7 @@ using System.Text;
 using ASMPS.API;
 using ASMPS.API.Helpers;
 using ASMPS.API.Options;
+using ASMPS.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -52,6 +53,8 @@ var jwtOptions = jwtOptionsSection.Get<JwtOptions>();
 
 if (jwtOptions is null)
     throw new Exception("JwtOptions is null");
+
+builder.Services.AddHostedService<SetStudentsInClassHostedService>();
 
 builder.Services.AddOptions<JwtOptions>().Bind(jwtOptionsSection);
 builder.Services.AddScoped(cfg => cfg.GetService<IOptions<JwtOptions>>()?.Value);

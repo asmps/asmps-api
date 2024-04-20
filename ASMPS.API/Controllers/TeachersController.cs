@@ -20,4 +20,19 @@ public class TeachersController : Controller
     {
         _context = context;
     }
+
+    /// <summary>
+    /// Получить список студентов, которые должны посетить занятие
+    /// </summary>
+    /// <param name="lessonId"></param>
+    /// <returns></returns>
+    [HttpGet("get-students-in-lesson/{lessonId}")]
+    public async Task<IActionResult> GetStudentsInLesson(Guid lessonId)
+    {
+        var attendances = await _context.Attendances
+            .Where(item => item.LessonId == lessonId)
+            .ToListAsync();
+        
+        return Ok(attendances);
+    }
 }

@@ -3,6 +3,7 @@ using System;
 using ASMPS.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASMPS.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240420191941_edit_context_attendance")]
+    partial class edit_context_attendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace ASMPS.API.Migrations
 
             modelBuilder.Entity("ASMPS.Models.Attendance", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("StudentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -37,10 +40,7 @@ namespace ASMPS.API.Migrations
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
+                    b.HasKey("StudentId");
 
                     b.ToTable("Attendances");
                 });
@@ -289,8 +289,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af6ba5fb-9daf-4be3-99b9-dc2c4313c275"),
-                            CreatedDate = new DateTime(2024, 4, 20, 21, 39, 42, 426, DateTimeKind.Utc).AddTicks(8304),
+                            Id = new Guid("aa127347-620f-49d7-ab9f-b766c5c62fd6"),
+                            CreatedDate = new DateTime(2024, 4, 20, 19, 19, 41, 546, DateTimeKind.Utc).AddTicks(6285),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",

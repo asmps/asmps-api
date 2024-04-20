@@ -3,6 +3,7 @@ using System;
 using ASMPS.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASMPS.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240420194248_remove_id_attendance")]
+    partial class remove_id_attendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace ASMPS.API.Migrations
 
             modelBuilder.Entity("ASMPS.Models.Attendance", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("LessonId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -34,13 +37,10 @@ namespace ASMPS.API.Migrations
                     b.Property<bool>("IsAttendance")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("LessonId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("LessonId");
 
                     b.ToTable("Attendances");
                 });
@@ -289,8 +289,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af6ba5fb-9daf-4be3-99b9-dc2c4313c275"),
-                            CreatedDate = new DateTime(2024, 4, 20, 21, 39, 42, 426, DateTimeKind.Utc).AddTicks(8304),
+                            Id = new Guid("b2cee117-09b0-447c-807c-6194a8f96fab"),
+                            CreatedDate = new DateTime(2024, 4, 20, 19, 42, 48, 722, DateTimeKind.Utc).AddTicks(9204),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",

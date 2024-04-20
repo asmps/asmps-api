@@ -1,10 +1,17 @@
-﻿namespace ASMPS.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ASMPS.Models;
 
 /// <summary>
 /// Модель посещаемости
 /// </summary>
 public class Attendance
 {
+    /// <summary>
+    /// Идентификатор посещаемости
+    /// </summary>
+    public Guid Id { get; set; }
+    
     /// <summary>
     /// Идентификатор студента
     /// </summary>

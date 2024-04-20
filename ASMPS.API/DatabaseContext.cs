@@ -195,7 +195,7 @@ public sealed class DatabaseContext : DbContext
 
         modelBuilder.Entity<Attendance>(entity =>
         {
-            entity.HasNoKey();
+            entity.HasKey(e => e.Id);
             entity.Property(e => e.StudentId).IsRequired();
             entity.Property(e => e.LessonId).IsRequired();
             entity.Property(e => e.AttendanceDateTime).IsRequired();

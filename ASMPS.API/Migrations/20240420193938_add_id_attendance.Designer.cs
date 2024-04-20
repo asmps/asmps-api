@@ -3,6 +3,7 @@ using System;
 using ASMPS.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASMPS.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240420193938_add_id_attendance")]
+    partial class add_id_attendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,8 +292,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af6ba5fb-9daf-4be3-99b9-dc2c4313c275"),
-                            CreatedDate = new DateTime(2024, 4, 20, 21, 39, 42, 426, DateTimeKind.Utc).AddTicks(8304),
+                            Id = new Guid("6ff76935-a359-44ec-8bfa-3b3fe74f635d"),
+                            CreatedDate = new DateTime(2024, 4, 20, 19, 39, 38, 791, DateTimeKind.Utc).AddTicks(4843),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",
