@@ -1,17 +1,17 @@
 ﻿using System.Security.Claims;
 using ASMPS.API.Helpers;
-using ASMPS.Contracts.Lesson;
-using ASMPS.Contracts.Schedule;
+using ASMPS.Contracts.Attendance;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using ASMPS.Models;
 using ASMPS.Contracts.Student;
-using ASMPS.Contracts.Teacher;
-using Microsoft.OpenApi.Extensions;
 
 namespace ASMPS.API.Controllers;
 
+/// <summary>
+/// Контроллер для работы со студентами
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class StudentsController : Controller
@@ -28,77 +28,103 @@ public class StudentsController : Controller
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _jwtHelper = jwtHelper ?? throw new ArgumentNullException(nameof(jwtHelper));
-
     }
     
     /// <summary>
-    /// Добавить студента
+    /// Получить всех студентов
     /// </summary>
-    /// <param name="studentAddDto">Данные по студенту</param>
+    [HttpGet]
     [Authorize(Roles = "Deanery")]
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] StudentAddDto studentAddDto)
+    public async Task<IActionResult> GetAll()
     {
-        if (!ModelState.IsValid) return BadRequest();
-
-        var group = await _context.GroupStudents.FirstOrDefaultAsync(x => x.Title == studentAddDto.TitleGroup);
-        if (group is null) return NotFound($"Данной группы '{studentAddDto.TitleGroup}' не существует!");
-        var item = new Student
-        {
-            Id = Guid.NewGuid(),
-            Login = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8),
-            Password = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8),
-            Name = studentAddDto.Name,
-            Surname = studentAddDto.Surname,
-            Patronymic = studentAddDto.Patronymic,
-            Email = studentAddDto.Email == string.Empty ? null : studentAddDto.Email,
-            CreatedDate = DateTime.UtcNow,
-            Role = UserRoles.Student,
-            Group = group,
-            GroupId = group.Id, 
-            StudentID = string.Concat(new Random().Next(10000001, 99999999).ToString())
-        };
-
-        await _context.Users.AddAsync(item);
-        await _context.SaveChangesAsync();
-        return Ok(item.Id);
+        return Ok(await _context.Students
+            .Where(item => item.Role == UserRoles.Student)
+            .Include(item => item.Group)
+            .Select(item => new StudentDto()
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Surname = item.Surname,
+                Patronymic = item.Patronymic,
+                StudentId = item.StudentId,
+                Email = item.Email,
+                TitleGroup = item.Group.Title
+            }).ToListAsync());
     }
-
-    /// <summary>
-    /// Получить расписание
-    /// </summary>
-    /// <returns>Расписание</returns>
-    [Route("schedule"), HttpGet]
-    public async Task<IActionResult> GetSchedule()
+    
+    [HttpPost("attendance")]
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> GetAttendance([FromBody] AttendanceAcceptDto attendanceAcceptDto)
     {
         var studentInfo = GetAuthUserInfo();
         if (studentInfo is null)
             return Unauthorized();
-
-        var student = await _context.Students.FirstOrDefaultAsync(item => item.Id == studentInfo.GuidId);
-        if (student is null)
-            return Conflict();
-
-        var schedule = await _context.Schedules
-            .Include(item => item.Lessons)
-            .Select(item => new ScheduleDto
-            {
-                Date = item.Date,
-                GroupId = item.GroupId,
-                Lessons = item.Lessons
-                    .Select(lesson => new LessonDto
-                    {
-                        Note = lesson.Note,
-                        Type = lesson.Type.GetDisplayName(),
-                        Audience = lesson.Audience.Title,
-                        Discipline = lesson.Discipline.Name,
-                        TeacherFullName = $"{lesson.Teacher.Surname} {lesson.Teacher.Name} {lesson.Teacher.Patronymic}",
-                        StartLesson = lesson.StartLesson,
-                        EndLesson = lesson.EndLesson
-                    }).ToList()
-            }).Where(item => item.GroupId == student.GroupId).ToListAsync();
         
-        return Ok(schedule);
+        if (!ModelState.IsValid) return BadRequest();
+        
+        var lesson = await _context.Lessons.FirstOrDefaultAsync(item => item.Id == attendanceAcceptDto.LessonId);
+        if (lesson is null)
+            return BadRequest("Такого занятия не существует!");
+        
+        var currentDateOnly = DateOnly.FromDateTime(DateTime.UtcNow);
+        
+        var schedule = await _context.Schedules.FirstOrDefaultAsync(item => item.Date == currentDateOnly && item.Lessons.Contains(lesson));
+        if (schedule is null)
+            return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
+        
+        var attendance = await _context.Attendances.FirstOrDefaultAsync(item =>
+            item.StudentId == studentInfo.GuidId && item.LessonId == lesson.Id);
+        if (attendance is not null && attendance.IsAttendance == true)
+            return Conflict("Статус посещения уже был подтвержден!");
+
+        DateTime lessonStart = DateTime.UtcNow.Date.Add(lesson.StartLesson.ToTimeSpan());
+        DateTime lessonEnd = DateTime.UtcNow.Date.Add(lesson.EndLesson.ToTimeSpan());
+        
+        // Проверка своевременного подтверждения присутствия на занятии
+        if (attendanceAcceptDto.AttendanceDateTime >= lessonStart && attendanceAcceptDto.AttendanceDateTime <= lessonEnd)
+        {
+            var audience = await _context.Audiences.FirstOrDefaultAsync(item => item.Id == lesson.AudienceId);
+            if (audience is null)
+                return Conflict();
+
+            var passInfo = await _context.PassInfos
+                .GroupBy(item => item.UserId)
+                .Select(item => item
+                    .OrderByDescending(c => c.DateTime)
+                    .First())
+                .FirstOrDefaultAsync();
+            if (passInfo is null)
+                return NotFound("Невозможно подтвердить занятие, ненаходясь в корпусе!");
+            
+            if (passInfo.CampusId != audience.CampusId)
+                return Conflict("Невозможно подтвердить занятие, которое находится в другом корпусе!");
+
+            if (attendance != null)
+            {
+                attendance.IsAttendance = true;
+                attendance.AttendanceDateTime = DateTime.UtcNow;
+
+                _context.Attendances.Update(attendance);
+            }
+            else
+            {
+                attendance = new Attendance()
+                {
+                    Id = Guid.NewGuid(),
+                    IsAttendance = true,
+                    StudentId = studentInfo.GuidId,
+                    AttendanceDateTime = DateTime.UtcNow,
+                    LessonId = lesson.Id
+                };
+                
+                await _context.Attendances.AddAsync(attendance);
+            }
+
+            await _context.SaveChangesAsync();
+        
+            return Ok();
+        }
+        return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
     }
     
     #region Claims

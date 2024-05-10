@@ -31,4 +31,14 @@ public class UserAddDto
     /// Роль пользователя
     /// </summary>
     public UserRoles Role { get; set; }
+    
+    /// <summary>
+    /// Заголовок группы
+    /// </summary>
+    public string? TitleGroup { get; set; }
+    
+    /// <summary>
+    /// Должность
+    /// </summary>
+    public string? Position { get; set; } = string.Empty;
 }

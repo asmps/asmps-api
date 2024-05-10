@@ -1,10 +1,20 @@
-﻿namespace ASMPS.Contracts.Teacher;
+﻿namespace ASMPS.Contracts.Student;
 
 /// <summary>
-/// Модель добавления учителя
+/// Модель представления студента
 /// </summary>
-public class TeacherAddDto
-{
+public class StudentDto
+{   
+    /// <summary>
+    /// Идентификатор студента
+    /// </summary>
+    public Guid Id { get; set; }
+
+    /// <summary>
+    /// Номер студенческого билета
+    /// </summary>
+    public string StudentId { get; set; } = null!;
+    
     /// <summary>
     /// Имя
     /// </summary>
@@ -24,9 +34,9 @@ public class TeacherAddDto
     /// Электронный адрес
     /// </summary>
     public string? Email {  get; set; }
-    
+
     /// <summary>
-    /// Должность учителя
+    /// Название группы
     /// </summary>
-    public string Position { get; set; } = string.Empty;
+    public string TitleGroup { get; set; } = string.Empty;
 }

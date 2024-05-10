@@ -1,7 +1,12 @@
-﻿namespace ASMPS.Contracts.Student;
+﻿namespace ASMPS.Contracts.User;
 
-public class StudentAddDto
+public class UserCurrentDto
 {
+    /// <summary>
+    /// Идентификатор пользователя
+    /// </summary>
+    public Guid Id { get; set; } 
+    
     /// <summary>
     /// Имя
     /// </summary>
@@ -23,7 +28,12 @@ public class StudentAddDto
     public string? Email {  get; set; }
 
     /// <summary>
-    /// Заголовок группы
+    /// Роль пользователя
     /// </summary>
-    public string TitleGroup { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Дата создания
+    /// </summary>
+    public DateTime CreatedDate { get; set; }
 }

@@ -65,6 +65,18 @@ public class Lesson
     /// </summary>
     public LessonTypes Type { get; set; }
     
+    // todo: Что-то сделать, потому что занятие будет сортироваться по числовому значению (от 0 до 6)
+    /// <summary>
+    /// Номер позиции в рассписании
+    /// </summary>
+    public int LessonOrderId { get; set; }
+    
+    // todo: и по дню (от 0 до 5, т.к рассписание делится на недели, а в каждой недели может быть 6 учебных дней)
+    /// <summary>
+    /// Номер дня
+    /// </summary>
+    public int DayId { get; set; }
+    
     /// <summary>
     /// Начало занятия
     /// </summary>

@@ -22,6 +22,29 @@ namespace ASMPS.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ASMPS.Models.Attendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AttendanceDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsAttendance")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attendances");
+                });
+
             modelBuilder.Entity("ASMPS.Models.Audience", b =>
                 {
                     b.Property<Guid>("Id")
@@ -33,6 +56,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<string>("Note")
                         .HasColumnType("text");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -53,6 +79,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<string>("Note")
                         .HasColumnType("text");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -110,6 +139,9 @@ namespace ASMPS.API.Migrations
                     b.Property<Guid>("AudienceId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("DayId")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("DisciplineId")
                         .HasColumnType("uuid");
 
@@ -118,6 +150,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("LessonOrderId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Note")
                         .HasColumnType("text");
@@ -149,6 +184,57 @@ namespace ASMPS.API.Migrations
                     b.ToTable("Lessons");
                 });
 
+            modelBuilder.Entity("ASMPS.Models.LessonConfirmation", b =>
+                {
+                    b.Property<Guid>("LessonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("TeacherSignature")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("LessonId");
+
+                    b.ToTable("LessonConfirmations");
+                });
+
+            modelBuilder.Entity("ASMPS.Models.PassInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CampusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PassType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PassInfos");
+                });
+
+            modelBuilder.Entity("ASMPS.Models.ScannerOwnership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CampusId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScannerOwnerships");
+                });
+
             modelBuilder.Entity("ASMPS.Models.Schedule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -160,6 +246,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("WeekType")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -223,8 +312,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6892f0b8-ac1c-45c9-98e8-baca4718b3ba"),
-                            CreatedDate = new DateTime(2024, 3, 8, 13, 53, 20, 477, DateTimeKind.Utc).AddTicks(2719),
+                            Id = new Guid("54043207-61df-4d82-99ca-06a8cb6dc7b5"),
+                            CreatedDate = new DateTime(2024, 4, 23, 20, 42, 11, 488, DateTimeKind.Utc).AddTicks(4790),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",
@@ -263,7 +352,7 @@ namespace ASMPS.API.Migrations
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("StudentID")
+                    b.Property<string>("StudentId")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -5,7 +5,7 @@ public class Student : User
     /// <summary>
     /// Номер студенческого билета
     /// </summary>
-    public string StudentID { get; set; } = string.Empty;
+    public string StudentId { get; set; } = string.Empty;
     
     /// <summary>
     /// Идентификатор группы

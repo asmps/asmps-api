@@ -10,6 +10,12 @@ public class Schedule
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    // todo: Что-то сделать с этим, потому что рассписание будет для каждой группы на 2 недели
+    /// <summary>
+    /// Тип недели
+    /// </summary>
+    public bool WeekType { get; set; }
+    
     /// <summary>
     /// День занятий
     /// </summary>
