@@ -15,14 +15,15 @@ public class SetStudentsInClassHostedService : IHostedService
     
     // Время начала занятий
     // todo: перенести все в базу по хорошему
-    private readonly TimeSpan[] LessonStartTimes = {
-        new TimeSpan(8, 30, 0), // 8:30
-        new TimeSpan(10, 15, 0), // 10:15
-        new TimeSpan(12, 0, 0), // 12:00
-        new TimeSpan(14, 00, 0), // 14:00
-        new TimeSpan(15, 45, 0), // 15:45
-        new TimeSpan(17, 30, 0), // 17:30\
-    };
+        private readonly TimeSpan[] LessonStartTimes = {
+            new TimeSpan(8, 30, 0), // 8:30
+            new TimeSpan(10, 15, 0), // 10:15
+            new TimeSpan(12, 0, 0), // 12:00
+            new TimeSpan(14, 00, 0), // 14:00
+            new TimeSpan(15, 45, 0), // 15:45
+            new TimeSpan(17, 30, 0), // 17:30
+            new TimeSpan(19, 15, 0), // 19:15
+        };
 
     /// <summary>
     /// Конструктор класса <seealso cref="SetStudentsInClassHostedService"/>
@@ -50,6 +51,12 @@ public class SetStudentsInClassHostedService : IHostedService
             : LessonStartTimes[0];
         var timeUntilNextLesson = nextLessonStartTime - DateTime.UtcNow.TimeOfDay;
         
+        // Если время до следующего занятия отрицательное, возьмем его абсолютное значение
+        if (timeUntilNextLesson < TimeSpan.Zero)
+        {
+            timeUntilNextLesson = -timeUntilNextLesson;
+        }
+        
         Console.WriteLine($"Now time {DateTime.UtcNow.TimeOfDay}. Next start service to {nextLessonStartTime}");
         
         _timer = new Timer(SetStudentsInClass, null, timeUntilNextLesson, _period);
@@ -74,13 +81,14 @@ public class SetStudentsInClassHostedService : IHostedService
         try 
         {
             // Берем каждого занятия, которое началось, и всех его студентов, которые должны быть на нем
-            // DateTime currentTime = DateTime.UtcNow;
-            DateTime currentTime = new DateTime(2024, 4, 20, 8, 45, 0);
+            DateTime currentTime = DateTime.UtcNow;
+            // test todo: DateTime currentTime = new DateTime(2024, 4, 20, 8, 45, 0);
             TimeOnly timeOnly = new TimeOnly(currentTime.Hour, currentTime.Minute, currentTime.Second);
 
             var nearestLessons = await context.Lessons
                 .Where(item => item.StartLesson <= timeOnly && item.EndLesson >= timeOnly)
-                .Include(lesson => lesson.Group).ThenInclude(groupStudents => groupStudents.Students)
+                .Include(lesson => lesson.Group)
+                .ThenInclude(groupStudents => groupStudents.Students)
                 .ToListAsync();
             
             // Берем каждое посещение
@@ -123,6 +131,6 @@ public class SetStudentsInClassHostedService : IHostedService
             logger.LogError(e, "Background service error");
         }
         
-        logger.LogInformation($"Background job (SetOverdueGoalsHostedService) finished at {DateTime.Now}");
+        logger.LogInformation($"Background job (SetStudentsInClassHostedService) finished at {DateTime.Now}");
     }
 }

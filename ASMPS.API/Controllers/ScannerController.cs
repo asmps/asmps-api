@@ -1,11 +1,15 @@
 ﻿using System.Security.Claims;
 using ASMPS.API.Helpers;
+using ASMPS.Contracts.PassInfo;
 using ASMPS.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASMPS.API.Controllers;
 
+/// <summary>
+/// Контроллер для работы со сканером
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class ScannerController : Controller
@@ -27,10 +31,10 @@ public class ScannerController : Controller
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    [HttpGet("pass/{userId}/{scanerId}/{method}")]
-    public async Task<IActionResult> Pass(Guid userId, Guid scanerId, string method)
+    [HttpPost("pass")]
+    public async Task<IActionResult> Pass([FromBody] PassInfoDto passInfoDto, Guid scanerId)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(item => item.Id == userId);
+        var user = await _context.Users.FirstOrDefaultAsync(item => item.Id == passInfoDto.UserId);
         if (user is null)
             return Conflict();
         
@@ -48,7 +52,7 @@ public class ScannerController : Controller
             UserId = user.Id,
             DateTime = DateTime.UtcNow,
             CampusId = scanner.CampusId,
-            PassType = (PassTypes) Enum.Parse(typeof(PassTypes), method)
+            PassType = (PassTypes) Enum.Parse(typeof(PassTypes), passInfoDto.Type)
         };
         
         _logger.LogInformation($"{DateTime.UtcNow} | Пользователь {user.Id} прошел в корпус {campus.Number} через {codeScanner.PassType}");

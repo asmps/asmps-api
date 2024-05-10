@@ -40,5 +40,5 @@ public class UserDto
     /// <summary>
     /// Дата создания
     /// </summary>
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedDate { get; set; }
 }

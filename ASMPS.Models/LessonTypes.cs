@@ -23,7 +23,7 @@ public enum LessonTypes
     /// Лабораторная работа
     /// </summary>
     [Display(Name = "Лабораторная работа")]
-    LabWork,
+    Laboratory,
     
     /// <summary>
     /// Экзамен
@@ -35,5 +35,11 @@ public enum LessonTypes
     /// Зачет
     /// </summary>
     [Display(Name = "Зачет")]
-    Test
+    Test,
+    
+    /// <summary>
+    /// Прочее
+    /// </summary>
+    [Display(Name = "Прочее")]
+    Other,
 }

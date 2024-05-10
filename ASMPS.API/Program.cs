@@ -57,9 +57,13 @@ if (jwtOptions is null)
 builder.Services.AddHostedService<SetStudentsInClassHostedService>();
 
 builder.Services.AddOptions<JwtOptions>().Bind(jwtOptionsSection);
+builder.Services.AddScoped<ScheduleConverter>();
 builder.Services.AddScoped(cfg => cfg.GetService<IOptions<JwtOptions>>()?.Value);
 
 builder.Services.AddSingleton<JwtHelper>();
+
+// todo: тут исправить под АГТУ
+builder.Services.AddHttpClient();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>

@@ -1,18 +1,17 @@
 ﻿using System.Security.Claims;
 using ASMPS.API.Helpers;
 using ASMPS.Contracts.Attendance;
-using ASMPS.Contracts.Lesson;
-using ASMPS.Contracts.Schedule;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using ASMPS.Models;
 using ASMPS.Contracts.Student;
-using ASMPS.Contracts.Teacher;
-using Microsoft.OpenApi.Extensions;
 
 namespace ASMPS.API.Controllers;
 
+/// <summary>
+/// Контроллер для работы со студентами
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class StudentsController : Controller
@@ -35,6 +34,7 @@ public class StudentsController : Controller
     /// Получить всех студентов
     /// </summary>
     [HttpGet]
+    [Authorize(Roles = "Deanery")]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await _context.Students
@@ -52,44 +52,8 @@ public class StudentsController : Controller
             }).ToListAsync());
     }
     
-    /// <summary>
-    /// Получить расписание
-    /// </summary>
-    /// <returns>Расписание</returns>
-    [HttpGet("schedule")]
-    public async Task<IActionResult> GetSchedule()
-    {
-        var studentInfo = GetAuthUserInfo();
-        if (studentInfo is null)
-            return Unauthorized();
-
-        var student = await _context.Students.FirstOrDefaultAsync(item => item.Id == studentInfo.GuidId);
-        if (student is null)
-            return Conflict();
-
-        var schedule = await _context.Schedules
-            .Include(item => item.Lessons)
-            .Select(item => new ScheduleDto
-            {
-                Date = item.Date,
-                GroupId = item.GroupId,
-                Lessons = item.Lessons
-                    .Select(lesson => new LessonDto
-                    {
-                        Note = lesson.Note,
-                        Type = lesson.Type.GetDisplayName(),
-                        Audience = lesson.Audience.Title,
-                        Discipline = lesson.Discipline.Name,
-                        TeacherFullName = $"{lesson.Teacher.Surname} {lesson.Teacher.Name} {lesson.Teacher.Patronymic}",
-                        StartLesson = lesson.StartLesson,
-                        EndLesson = lesson.EndLesson
-                    }).ToList()
-            }).Where(item => item.GroupId == student.GroupId).ToListAsync();
-        
-        return Ok(schedule);
-    }
-    
     [HttpPost("attendance")]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> GetAttendance([FromBody] AttendanceAcceptDto attendanceAcceptDto)
     {
         var studentInfo = GetAuthUserInfo();
@@ -100,9 +64,11 @@ public class StudentsController : Controller
         
         var lesson = await _context.Lessons.FirstOrDefaultAsync(item => item.Id == attendanceAcceptDto.LessonId);
         if (lesson is null)
-            return BadRequest();
+            return BadRequest("Такого занятия не существует!");
         
-        var schedule = await _context.Schedules.FirstOrDefaultAsync(item => item.Date == DateOnly.FromDateTime(DateTime.UtcNow) && item.Lessons.Contains(lesson));
+        var currentDateOnly = DateOnly.FromDateTime(DateTime.UtcNow);
+        
+        var schedule = await _context.Schedules.FirstOrDefaultAsync(item => item.Date == currentDateOnly && item.Lessons.Contains(lesson));
         if (schedule is null)
             return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
         
@@ -111,8 +77,8 @@ public class StudentsController : Controller
         if (attendance is not null && attendance.IsAttendance == true)
             return Conflict("Статус посещения уже был подтвержден!");
 
-        DateTime lessonStart = DateTime.Today.Add(lesson.StartLesson.ToTimeSpan());
-        DateTime lessonEnd = DateTime.Today.Add(lesson.EndLesson.ToTimeSpan());
+        DateTime lessonStart = DateTime.UtcNow.Date.Add(lesson.StartLesson.ToTimeSpan());
+        DateTime lessonEnd = DateTime.UtcNow.Date.Add(lesson.EndLesson.ToTimeSpan());
         
         // Проверка своевременного подтверждения присутствия на занятии
         if (attendanceAcceptDto.AttendanceDateTime >= lessonStart && attendanceAcceptDto.AttendanceDateTime <= lessonEnd)
@@ -128,10 +94,10 @@ public class StudentsController : Controller
                     .First())
                 .FirstOrDefaultAsync();
             if (passInfo is null)
-                return NotFound();
-
+                return NotFound("Невозможно подтвердить занятие, ненаходясь в корпусе!");
+            
             if (passInfo.CampusId != audience.CampusId)
-                return Conflict("");
+                return Conflict("Невозможно подтвердить занятие, которое находится в другом корпусе!");
 
             if (attendance != null)
             {

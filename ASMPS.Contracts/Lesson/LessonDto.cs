@@ -13,7 +13,7 @@ public class LessonDto
     /// <summary>
     /// Полное имя учителя
     /// </summary>
-    public string TeacherFullName { get; set; } = string.Empty;
+    public string Teacher { get; set; } = string.Empty;
 
     /// <summary>
     /// Аудитория

@@ -139,6 +139,9 @@ namespace ASMPS.API.Migrations
                     b.Property<Guid>("AudienceId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("DayId")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("DisciplineId")
                         .HasColumnType("uuid");
 
@@ -147,6 +150,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("LessonOrderId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Note")
                         .HasColumnType("text");
@@ -176,6 +182,20 @@ namespace ASMPS.API.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("ASMPS.Models.LessonConfirmation", b =>
+                {
+                    b.Property<Guid>("LessonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("TeacherSignature")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("LessonId");
+
+                    b.ToTable("LessonConfirmations");
                 });
 
             modelBuilder.Entity("ASMPS.Models.PassInfo", b =>
@@ -226,6 +246,9 @@ namespace ASMPS.API.Migrations
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("WeekType")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -289,8 +312,8 @@ namespace ASMPS.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af6ba5fb-9daf-4be3-99b9-dc2c4313c275"),
-                            CreatedDate = new DateTime(2024, 4, 20, 21, 39, 42, 426, DateTimeKind.Utc).AddTicks(8304),
+                            Id = new Guid("54043207-61df-4d82-99ca-06a8cb6dc7b5"),
+                            CreatedDate = new DateTime(2024, 4, 23, 20, 42, 11, 488, DateTimeKind.Utc).AddTicks(4790),
                             Email = "pmarkelo77@gmail.com",
                             Login = "admin",
                             Name = "Павел",

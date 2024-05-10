@@ -3,22 +3,17 @@
 namespace ASMPS.Contracts.Schedule;
 
 /// <summary>
-/// Модель вывода расписания
+/// Модель представления расписания
 /// </summary>
 public class ScheduleDto
 {
     /// <summary>
-    /// День занятий
+    /// Для кого рассписание
     /// </summary>
-    public DateOnly Date { get; set; }
-    
-    /// <summary>
-    /// Идентификатор группы
-    /// </summary>
-    public Guid GroupId { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     /// <summary>
-    /// Список занятий для группы
+    /// Список занятий
     /// </summary>
-    public List<LessonDto> Lessons { get; set; } = new List<LessonDto>();
+    public List<LessonInScheduleDto> Lessons { get; set; } = new List<LessonInScheduleDto>();
 }

@@ -66,6 +66,11 @@ public sealed class DatabaseContext : DbContext
     /// Таблица кодов пройденых через сканер
     /// </summary>
     public DbSet<PassInfo> PassInfos { get; set; } = null!;
+
+    /// <summary>
+    /// Таблица подтвержденный занятий
+    /// </summary>
+    public DbSet<LessonConfirmation> LessonConfirmations { get; set; } = null!;
     #endregion
     
     /// <summary>
@@ -152,6 +157,9 @@ public sealed class DatabaseContext : DbContext
             entity.HasOne(l => l.Discipline).WithMany(d => d.Lessons).HasForeignKey(d => d.DisciplineId);
             entity.HasOne(l => l.Schedule).WithMany(s => s.Lessons).HasForeignKey(s => s.ScheduleId);
             entity.HasOne(l => l.Teacher).WithMany(t => t.Lessons).HasForeignKey(d => d.TeacherId);
+
+            entity.Property(e => e.LessonOrderId).IsRequired();
+            entity.Property(e => e.DayId).IsRequired();
             
             entity.Property(e => e.Type).IsRequired();
             entity.Property(e => e.StartLesson).IsRequired();
@@ -163,6 +171,7 @@ public sealed class DatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Date).IsRequired();
+            entity.Property(e => e.WeekType).IsRequired();
             
             entity.HasOne(s => s.Group).WithMany(g => g.Schedules).HasForeignKey(s => s.GroupId);
             entity.HasMany(s => s.Lessons).WithOne(l => l.Schedule).HasForeignKey(l => l.ScheduleId);
@@ -217,6 +226,13 @@ public sealed class DatabaseContext : DbContext
             entity.Property(e => e.CampusId).IsRequired();
         });
         
+        
+        modelBuilder.Entity<LessonConfirmation>(entity =>
+        {
+            entity.HasKey(e => e.LessonId);
+            entity.Property(e => e.TeacherSignature).IsRequired();
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }
