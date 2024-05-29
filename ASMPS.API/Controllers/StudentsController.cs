@@ -94,7 +94,7 @@ public class StudentsController : Controller
                     .First())
                 .FirstOrDefaultAsync();
             if (passInfo is null)
-                return NotFound("Невозможно подтвердить занятие, ненаходясь в корпусе!");
+                return Conflict("Невозможно подтвердить занятие, ненаходясь в корпусе!");
             
             if (passInfo.CampusId != audience.CampusId)
                 return Conflict("Невозможно подтвердить занятие, которое находится в другом корпусе!");
@@ -122,7 +122,7 @@ public class StudentsController : Controller
 
             await _context.SaveChangesAsync();
         
-            return Ok();
+            return Ok("Посещение подтверждено!");
         }
         return Conflict("Подтверждение не возможно! Занятие ещё не началось или уже закончилось!");
     }

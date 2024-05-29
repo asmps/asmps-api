@@ -35,6 +35,10 @@ public class TeachersController : Controller
     [HttpGet("get-students-in-lesson/{lessonId}")]
     public async Task<IActionResult> GetStudentsInLesson(Guid lessonId)
     {
+        var lesson = await _context.Lessons.FirstOrDefaultAsync(item => item.Id == lessonId);
+        if (lesson is null)
+            return BadRequest("Такого занятия не существует!");
+        
         // Достаем все посещения для занятия
         var attendances = await _context.Attendances
             .Where(item => item.LessonId == lessonId)
@@ -49,7 +53,7 @@ public class TeachersController : Controller
             .ToListAsync();
 
         // Получаем все группы из базы данных
-        var groups = await _context.GroupStudents.ToListAsync();
+        var groups = await _context.GroupStudents.Where(item => item.Id == lesson.GroupId).ToListAsync();
         
         // Создаем список, который будет содержать данные о группах со студентами на занятии
         var groupStudentDtos = new List<GroupStudentDto>();
@@ -130,7 +134,7 @@ public class TeachersController : Controller
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Не удалось подтвердить список студентов.");
+            return StatusCode(500, "Не удалось подтвердить список студентов!");
         }
     }
 }

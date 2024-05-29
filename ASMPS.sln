@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASMPS.Models", "ASMPS.Model
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASMPS.Contracts", "ASMPS.Contracts\ASMPS.Contracts.csproj", "{37741A60-65DB-4EA9-A1D4-F2C36E1E75BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASMPS.Client", "ASMPS.Client\ASMPS.Client.csproj", "{832C8D41-0ACE-4719-B0D3-96129588C460}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{37741A60-65DB-4EA9-A1D4-F2C36E1E75BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37741A60-65DB-4EA9-A1D4-F2C36E1E75BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37741A60-65DB-4EA9-A1D4-F2C36E1E75BD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{832C8D41-0ACE-4719-B0D3-96129588C460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{832C8D41-0ACE-4719-B0D3-96129588C460}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{832C8D41-0ACE-4719-B0D3-96129588C460}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{832C8D41-0ACE-4719-B0D3-96129588C460}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

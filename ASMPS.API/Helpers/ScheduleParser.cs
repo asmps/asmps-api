@@ -192,8 +192,8 @@ public class ScheduleParser
             lessonInScheduleDto.LessonInScheduleInfoDto = new LessonInScheduleInfoDto()
             {
                 Id = lesson.Id,
-                Teacher = $"{lesson.Teacher.Position}. {lesson.Teacher.Surname} {lesson.Teacher.Name} {lesson.Teacher.Patronymic}",
-                Audience = $"{lesson.Audience.Title}",
+                Teacher = $"{lesson.Teacher.Position} {lesson.Teacher.Surname} {lesson.Teacher.Name} {lesson.Teacher.Patronymic}",
+                Audience = $"{lesson.Audience.Campus.Number}.{lesson.Audience.Number}",
                 Discipline = $"{lesson.Discipline.Name}",
                 Type = $"{lesson.Type.GetDisplayName()}"
             };

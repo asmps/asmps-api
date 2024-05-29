@@ -1,11 +1,13 @@
 ﻿using System.Security.Claims;
 using ASMPS.API.Helpers;
 using ASMPS.API.Services;
+using ASMPS.Contracts.Lesson;
 using ASMPS.Contracts.Schedule;
 using ASMPS.Contracts.Teacher;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 
 namespace ASMPS.API.Controllers;
 
@@ -54,15 +56,29 @@ public class SchedulesController : Controller
         var group = await _context.GroupStudents.FirstOrDefaultAsync(item => item.Id == student.GroupId);
         if (group is null)
             return Conflict("Ошибка! У студента отсутствует группа!");
-        
-        // Получаем рассписание для студента, в соответствии с его группой, от АГТУ
-        var response = await _httpClient.GetAsync($"https://apitable.astu.org/search/get?q={group.Title}&t=group");
 
-        // Получаем содержимое ответа как строку JSON
-        var jsonString = await response.Content.ReadAsStringAsync();
-        var scheduleParser = new ScheduleParser().ParseScheduleForStudent(jsonString);
+        var schedule = await _context.Schedules
+            .Include(item => item.Lessons)
+            .ThenInclude(item => item.Teacher)
+            .Include(item => item.Lessons)
+            .ThenInclude(item => item.Discipline)
+            .Include(item => item.Lessons)
+            .ThenInclude(item => item.Audience)
+            .ThenInclude(item => item.Campus)
+            .FirstOrDefaultAsync(item => item.GroupId == group.Id);
+        if (schedule is null)
+            return Conflict("Ошибка! У студента отсутствует рассписание!");
 
-        /*// todo: Здесь мы достаем рассписание ИЗ СВОЕЙ БАЗЫ ДАННЫХ
+        var scheduleParser = new ScheduleParser().ParseSchedule(schedule);
+        return Ok(scheduleParser);
+        /*//// Получаем рассписание для студента, в соответствии с его группой, от АГТУ
+        // var response = await _httpClient.GetAsync($"https://apitable.astu.org/search/get?q={group.Title}&t=group");
+
+        //// Получаем содержимое ответа как строку JSON
+        // var jsonString = await response.Content.ReadAsStringAsync();
+        // var scheduleParser = new ScheduleParser().ParseScheduleForStudent(jsonString);
+
+        /#1#/ todo: Здесь мы достаем рассписание ИЗ СВОЕЙ БАЗЫ ДАННЫХ
         // todo: Нужно как-то мержить. Ну, или оставить только от АГТУ
         // todo: Тогда их нужно будет как-то парсить и добавлять себе в базу
         var sc = await _context.Schedules
@@ -75,43 +91,25 @@ public class SchedulesController : Controller
             .Include(item => item.Lessons)
             .ThenInclude(lesson => lesson.Discipline)
             .FirstOrDefaultAsync();
-        var scheduleDbParser = new ScheduleParser().ParseSchedule(sc);*/
+        var scheduleDbParser = new ScheduleParser().ParseSchedule(sc);
 
-        /*var schedule = await _context.Schedules
+        var schedule = await _context.Schedules
             .Include(s => s.Lessons)
             .ThenInclude(l => l.Teacher)
-            .ToListAsync();*/
+            .ToListAsync();#1#
 
-        try
+        /*try
         {
             var schedule = await _scheduleConverter.ConvertToScheduleForStudent(scheduleParser);
             Console.WriteLine(schedule);
-            var scPar = new ScheduleParser().ParseSchedule(schedule);        
+            var scPar = new ScheduleParser().ParseSchedule(schedule);
             return Ok(scPar);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
-        }
-        /*var schedule = await _context.Schedules
-            .Include(item => item.Lessons)
-            .Select(item => new ScheduleDto
-            {
-                Date = item.Date,
-                GroupId = item.GroupId,
-                Lessons = item.Lessons
-                    .Select(lesson => new LessonDto
-                    {
-                        Note = lesson.Note,
-                        Type = lesson.Type.GetDisplayName(),
-                        Audience = lesson.Audience.Title,
-                        Discipline = lesson.Discipline.Name,
-                        TeacherFullName = $"{lesson.Teacher.Surname} {lesson.Teacher.Name} {lesson.Teacher.Patronymic}",
-                        StartLesson = lesson.StartLesson,
-                        EndLesson = lesson.EndLesson
-                    }).ToList()
-            }).Where(item => item.GroupId == student.GroupId).ToListAsync();*/
+        }#1#*/
     }
     
     /// <summary>
@@ -130,14 +128,50 @@ public class SchedulesController : Controller
         if (teacher is null)
             return Conflict("Ошибка! Пользователь не является учителем!");
 
-        var teacherDto = new TeacherDto
+        var lessons = await _context.Lessons.Where(item => item.TeacherId == teacher.Id)
+            .Include(item => item.Audience)
+            .ThenInclude(item => item.Campus)
+            .Include(item => item.Discipline).Include(lesson => lesson.Teacher)
+            .ToListAsync();
+        if (lessons is null)
+            return NotFound("Ошибка! У учителя отсутствуют занятия!");
+
+        var schedule = new ScheduleDto
+        {
+            Title = teacher.Surname + " " + teacher.Name[0] + "." + teacher.Patronymic[0] + ".",
+        };
+        
+        foreach (var lesson in lessons)
+        {
+            var groups = await _context.GroupStudents.Where(item => item.Id == lesson.GroupId)
+                .Select(item => item.Title)
+                .ToListAsync();
+            
+            schedule.Lessons.Add(new LessonInScheduleDto
+            {
+                DayId = lesson.DayId,
+                LessonOrderId = lesson.LessonOrderId,
+                LessonInScheduleInfoDto = new LessonInScheduleInfoDto
+                {
+                    Audience = lesson.Audience.Campus.Number + "." + lesson.Audience.Number,
+                    Discipline = lesson.Discipline.Name,
+                    Teacher = lesson.Teacher.Surname + " " + lesson.Teacher.Name[0] + "." + lesson.Teacher.Patronymic[0] + ".",
+                    Id = lesson.Id,
+                    Type = lesson.Type.GetDisplayName(),
+                    Groups = groups
+                }
+            });
+        }
+        
+        return Ok(schedule);
+        /*var teacherDto = new TeacherDto
         {
             Name = teacher.Name,
             Surname = teacher.Surname,
             Patronymic = teacher.Patronymic,
             Position = teacher.Position
         };
-        
+
         /*var schedule = await _context.Schedules
             .Include(item => item.Lessons)
             .ThenInclude(l => l.Teacher)
@@ -147,7 +181,7 @@ public class SchedulesController : Controller
             .ThenInclude(l => l.Audience)
             .Include(item => item.Lessons)
             .ThenInclude(l => l.Discipline)
-            .FirstOrDefaultAsync();*/
+            .FirstOrDefaultAsync();#1#
 
         /*if (schedule is null)
         {
@@ -156,10 +190,10 @@ public class SchedulesController : Controller
 
         schedule.Lessons = schedule.Lessons
             .Where(l => l.Teacher.Id == teacher.Id)
-            .ToList();*/
-        
-        /*var scheduleParser = new ScheduleParser().ParseSchedule(schedule);*/
-        
+            .ToList();#1#
+
+        /*var scheduleParser = new ScheduleParser().ParseSchedule(schedule);#1#
+
         try
         {
             // Получаем рассписание для учителя, от АГТУ
@@ -172,14 +206,14 @@ public class SchedulesController : Controller
 
             var schedule = await _scheduleConverter.ConvertToScheduleForTeacher(scheduleDtoParser, teacherInfo.GuidId);
             Console.WriteLine(schedule);
-            var scPar = new ScheduleParser().ParseSchedule(schedule);        
+            var scPar = new ScheduleParser().ParseSchedule(schedule);
             return Ok(scPar);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
-        }
+        }*/
     }
     
     /// <summary>
