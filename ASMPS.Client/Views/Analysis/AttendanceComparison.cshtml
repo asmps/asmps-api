@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Анализ посещаемости по группам";
+}
+
+<h2>Анализ посещаемости по группам</h2>
+
+<table class="table table-striped"> 
+    <thead>
+        <tr>
+            <th>Группа</th>
+            <th>Процент посещаемости</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (ViewBag.GroupAttendanceRates != null)
+    {
+        foreach (var item in ViewBag.GroupAttendanceRates)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value %</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

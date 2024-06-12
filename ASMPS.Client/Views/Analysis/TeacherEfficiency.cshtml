@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Эффективность преподавателей";
+}
+
+<h2>Эффективность преподавателей</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Преподаватель</th>
+            <th>Процент посещаемости</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (ViewBag.TeacherAttendanceRates != null)
+    {
+        foreach (var item in ViewBag.TeacherAttendanceRates)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value %</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
